@@ -1,0 +1,171 @@
+@import './variables.scss';
+@import url('https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Signika:wght@400;700&display=swap');
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Signika', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: $board-background-color;
+}
+
+.font-family-primary {
+  font-family: 'Signika', sans-serif;
+}
+
+.bingo-board-component {
+  padding: 4px;
+  .board-grid-col {
+    display: flex;
+    border-radius: 2px;
+    &:not(:last-child) {
+      margin-bottom: 4px;
+    }
+    .board-grid-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Signika', sans-serif;
+      font-size: 2.5rem;
+      background-color: $board-chip-background-color-inactive;
+      border-radius: 10px;
+      cursor: pointer;
+      &:not(:last-child) {
+        margin-right: 4px;
+      }
+      &:hover {
+        background-color: lighten($board-chip-background-color-inactive, 10%);
+      }
+      &.vis {
+        cursor: default;
+        background-color: $board-chip-background-color-active;
+      }
+    }
+  }
+}
+
+.bingo-component {
+  background-color: $board-background-color;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  .board {
+    height: inherit;
+    flex: 7;
+    padding: 40px 0 40px 80px;
+    .board-head {
+      font-size: 5rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .board-bingo {
+      height: calc(100% - 200px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .board-turn {
+      text-align: center;
+      font-size: 2rem;
+    }
+  }
+  .player {
+    padding: 40px 80px;
+    height: inherit;
+    flex: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.room-joiner-component {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .room-entry {
+    -webkit-box-shadow: 0 0 5px 2px $login-area-shadow;
+    -moz-box-shadow: 0 0 5px 2px $login-area-shadow;
+    box-shadow: 0 0 5px 2px $login-area-shadow;
+    border-radius: 15px;
+    padding: 40px 0;
+    .title {
+      font-size: 5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      height: 100%;
+    }
+
+    .saperator {
+      -webkit-box-shadow: 0 0 5px 2px $login-area-shadow;
+      -moz-box-shadow: 0 0 5px 2px $login-area-shadow;
+      box-shadow: 0 0 5px 2px $login-area-shadow;
+    }
+  
+    .joiner-form {
+      width: 300px;
+      min-width: 250px;
+      margin: auto;
+    }
+  
+    .label {
+      font-weight: 400;
+    }
+  
+    input[type="text"] {
+      @extend .font-family-primary;
+    }
+  }
+}
+
+.avatar-component {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  background-color: $avatar-background-color;
+  .avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: inherit;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+}
+
+.game-info-component {
+  .room {
+    margin: auto;
+    font-size: 2rem;
+    text-align: center;
+    border: 4px dashed $board-border-color;
+    border-radius: 12px;
+    padding: 0 20px;
+    width: fit-content;
+  }
+  .user-avatar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    .user-avatar-pic {
+      margin: 8px 12px;
+    }
+  }
+}
+
+/*
+Bulma Class Override
+*/
