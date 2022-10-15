@@ -1,31 +1,22 @@
 import { useEffect, useState } from "react";
-import { BASE_API_URL, IN_EVENT, OUT_EVENT } from "../constants";
-import { SocketService, shuffleBingoBoard } from "../services";
+
+import { IN_EVENT, OUT_EVENT } from "../constants";
+import { IPlayed, IPlayerInfo, IReceivedEvent } from "../interfaces";
+import { shuffleBingoBoard } from "../services";
 
 export function BingoBoardComponent(props: BingoBoardProps): JSX.Element {
-  console.log(props);
   const [board, setBoard] = useState<any[][]>([[]]);
   const [chipHeight, setChipHeight] = useState<number>(0);
-  const [connection, setConnection] = useState<any>();
   
-  useEffect(()=>{
-    const perColumn = (props.boardHeight - 24)/5;
-    setChipHeight(perColumn);
-
-    const _board = shuffleBingoBoard();
-    setBoard(_board);
-  }, [props.boardHeight]);
-
-  useEffect(() => {
-    SocketService.instance.initializeSocket(BASE_API_URL, '/play/').then((socket: any) => {
-      setConnection(socket);
-
-      socket.on(IN_EVENT.OPPONENT_PLAYED, revealOpponentPlayedChip);
-    })
-  }, []);
-
   const revealNextChip = (x: number, y: number) => {
-    connection.emit(OUT_EVENT.PLAYED, board[x][y]);
+    if (!props.currentTurn) return;
+    
+    const played: IPlayed = {
+      room: props.room,
+      played: board[x][y]
+    }
+
+    props.socket.emit(OUT_EVENT.PLAYED, played);
     setBoard(b => b.map((_x, i) => {
       _x.forEach((_y, j) => {
         if (i === x && j === y) {
@@ -35,12 +26,18 @@ export function BingoBoardComponent(props: BingoBoardProps): JSX.Element {
       })
       return _x
     }));
+
+    props.neutralizeTurnCallack();
   };
 
-  const revealOpponentPlayedChip = (evt) => {
+  const revealOpponentPlayedChip = (evt: IReceivedEvent) => {
+    console.log(evt);
+    if (evt.type !== 'success') {
+      return;
+    }
     setBoard(b => b.map(_x => {
       _x.forEach(_y => {
-        if (_y.value === evt.value) {
+        if (_y.value === evt.data.play.value) {
           _y.active = true;
         }
         return _y;
@@ -48,6 +45,22 @@ export function BingoBoardComponent(props: BingoBoardProps): JSX.Element {
       return _x;
     }));
   }
+
+  useEffect(()=>{
+    const perColumn = (props.boardHeight - 24)/5;
+    setChipHeight(perColumn);
+
+    const _board = shuffleBingoBoard();
+    setBoard(_board);
+  }, [props.boardHeight]);
+
+  useEffect(() => {
+    props.socket?.on(IN_EVENT.OPPONENT_PLAYED, revealOpponentPlayedChip);
+    
+    return () => {
+      props.socket?.off(IN_EVENT.OPPONENT_PLAYED, revealOpponentPlayedChip);
+    }
+  }, [props.socket, props.currentTurn]);
 
   return (
     <div className="bingo-board-component"
@@ -69,6 +82,9 @@ export function BingoBoardComponent(props: BingoBoardProps): JSX.Element {
 
 interface BingoBoardProps {
   boardHeight: number;
-  user: string;
-  room: string
+  currentTurn: boolean;
+  neutralizeTurnCallack: Function;
+  room: string;
+  socket: any;
+  users: Array<IPlayerInfo>;
 }

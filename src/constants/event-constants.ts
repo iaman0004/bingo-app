@@ -9,5 +9,6 @@ export const IN_EVENT = {
   RECEIVE_MESSAGE: 'server_to_client_message',
   OPPONENT_PLAYED: 'opponent_played',
   OPPONENT_JOINED: 'opponent_joined',
-  START_GAME: 'start_game'
+  START_GAME: 'start_game',
+  NEXT_TURN: 'next_turn'
 }

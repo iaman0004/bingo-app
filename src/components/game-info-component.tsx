@@ -1,19 +1,21 @@
 import { Fragment } from "react";
+import { IPlayerInfo } from "../interfaces";
 import { AvatarComponent } from "./avatar-component";
 
 export function GameInfoComponent(props: IGameInfoProps) {
   return (
     <Fragment>
       <div className="game-info-component">
-        <div className="column room">{props.room}</div>
-        <div className="column">Copy the above code to invite your friend and play together.</div>
+        <div className="board-head">Bingo Tingo</div>
+        {/* <div className="column room">{props.room}</div> */}
         <div className="column">
           {props.users?.map(u => (
-            <div className="user-avatar">
+            <div className="user-avatar" key={u.user}>
               <div className="user-avatar-pic">
                 <AvatarComponent name={u.user}></AvatarComponent>
               </div>
-              <div className="user-name">{u.user} ({u.userType})</div>
+              <div className="user-name">{u.user} ({u.type})</div>
+              {u.status === 'ready' && <div className="playing">&nbsp;&nbsp;playing...</div>}
             </div>
           ))}
         </div>
@@ -23,11 +25,7 @@ export function GameInfoComponent(props: IGameInfoProps) {
 }
 
 interface IGameInfoProps{
-  users: Array<IUserInfo>;
+  currentTurn: boolean;
   room: string;
+  users: Array<IPlayerInfo>;
 };
-
-export interface IUserInfo {
-  user: string;
-  userType: 'self' | 'opponent'
-}

@@ -1,44 +1,72 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BASE_API_URL, IN_EVENT } from "../constants";
+import { IPlayerInfo } from "../interfaces";
+import { SocketService } from "../services";
 import { BingoBoardComponent } from "./bingo-board-component";
-import { GameInfoComponent, IUserInfo } from "./game-info-component";
-
+import { GameInfoComponent } from "./game-info-component";
 
 export function BingoComponent() {
-  const [bingoBoardHeight, setBingoBoardHeight] = useState<number>(0);
-  const [turn, setTurn] = useState<IUserInfo>({
-    user: 'Clint',
-    userType: 'self'
-  })
-  const boardRef = useRef(null);
   const location = useLocation();
+  const [bingoBoardHeight, setBingoBoardHeight] = useState<number>(0);
+  const [player, setPlayer] = useState<Array<IPlayerInfo>>(location.state.players || []);
+  const [isYourTurn, setYourTurn] = useState<boolean>(false);
+  const [conn, setConn] = useState<any>(location.state.socket);
+  const boardRef = useRef(null);
   const navigate = useNavigate();
 
-  const { players, room } = location.state;
+  const {players,  room } = location.state;
   if (!players || !room) {
     navigate('/join');
   }
 
-  useEffect(()=>{
+  const assignNextTurn = useCallback(() => {
+    
+    setPlayer(players => {
+      return player.map((p: IPlayerInfo) => {
+        if ((!isYourTurn && p.type === 'self') || (isYourTurn && p.type === 'opponent')) {
+          p.status = 'ready';
+        } else {
+          p.status = 'idle'
+        }
+        return p;
+      })
+    })
+
+    setYourTurn(_t => !_t);
+  },[player, isYourTurn]);
+
+  /**
+   * Get socket instance for subscription
+   */
+  
+  useEffect(() => {
+    SocketService.instance.initializeSocket(BASE_API_URL, '/play/').then((socket: any) => {
+      setConn(socket);
+    })
     console.log(boardRef.current?.['clientHeight']);
     if (boardRef.current?.['clientHeight']) {
-      setBingoBoardHeight(boardRef.current?.['clientHeight'] - 50);
+      setBingoBoardHeight(boardRef.current?.['clientHeight']);
     }
   }, [])
+
+  useEffect(()=>{
+    conn?.on(IN_EVENT.NEXT_TURN, assignNextTurn);
+    
+    return () => {
+      conn?.off(IN_EVENT.NEXT_TURN, assignNextTurn);
+    }
+  }, [conn, isYourTurn, player])
 
   return(
     <div className="bingo-component">
       <div className="board">
-        <div className="board-head">Bingo Tingo</div>
         <div className="board-bingo" ref={boardRef}>
-          <BingoBoardComponent boardHeight={bingoBoardHeight} room={room} user={players} />
-        </div>
-        <div className="board-turn">
-          {turn?.userType === 'self' ? <span>Your turn</span> : <span>{turn?.user}'s turn</span>}
+          <BingoBoardComponent boardHeight={bingoBoardHeight} room={room} users={player} socket={conn} currentTurn={isYourTurn} neutralizeTurnCallack={assignNextTurn} />
         </div>
       </div>
       <div className="player">
-        <GameInfoComponent room={room} users={players} />
+        <GameInfoComponent room={room} users={player} currentTurn={isYourTurn} />
       </div>
     </div>
   );
