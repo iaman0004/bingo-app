@@ -14,19 +14,8 @@ export function BingoComponent() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { user, room } = location.state;
-  // const { user, room } = { user: 'Merremy', room: 'MD3PX1L3' };
-  const users: Array<IUserInfo> = [
-    {
-      user: 'Natasha',
-      userType: 'self'
-    },
-    {
-      user: 'Clint',
-      userType: 'opponent'
-    }
-  ]
-  if (!user || !room) {
+  const { players, room } = location.state;
+  if (!players || !room) {
     navigate('/join');
   }
 
@@ -42,14 +31,14 @@ export function BingoComponent() {
       <div className="board">
         <div className="board-head">Bingo Tingo</div>
         <div className="board-bingo" ref={boardRef}>
-          <BingoBoardComponent boardHeight={bingoBoardHeight} room={room} user={user} />
+          <BingoBoardComponent boardHeight={bingoBoardHeight} room={room} user={players} />
         </div>
         <div className="board-turn">
           {turn?.userType === 'self' ? <span>Your turn</span> : <span>{turn?.user}'s turn</span>}
         </div>
       </div>
       <div className="player">
-        <GameInfoComponent room={room} users={users} />
+        <GameInfoComponent room={room} users={players} />
       </div>
     </div>
   );

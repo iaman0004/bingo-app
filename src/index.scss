@@ -100,6 +100,7 @@ body {
     box-shadow: 0 0 5px 2px $login-area-shadow;
     border-radius: 15px;
     padding: 40px 0;
+    height: 330px;
     .title {
       font-size: 5rem;
       font-weight: 700;
@@ -119,6 +120,45 @@ body {
       width: 300px;
       min-width: 250px;
       margin: auto;
+      height: 255px;
+      &.start-step {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .user-avatar {
+        display: flex;
+        align-items: center;
+        &:not(:first-child) {
+          margin-top: 12px;
+        }
+        .user-name {
+          margin-left: 12px;
+          word-break: break-all;
+        }
+      }
+      .players-list {
+        padding: 0.75rem;
+      }
+      .actions {
+        padding: 0.75rem;
+        .invite-box {
+          .room-code {
+            text-align: center;
+            display: block;
+            border: 1px dashed;
+            border-radius: 12px;
+            padding: 4px 12px;
+            width: fit-content;
+            margin: auto;
+          }
+          .caption {
+            font-size: .8rem;
+            text-align: center;
+            margin-top: 4px;
+          }
+        }
+      }
     }
   
     .label {
