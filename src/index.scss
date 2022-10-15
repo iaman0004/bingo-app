@@ -61,13 +61,11 @@ body {
     height: inherit;
     flex: 7;
     padding: 40px 0 40px 80px;
-    .board-head {
-      font-size: 5rem;
-      font-weight: 700;
-      text-align: center;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
     .board-bingo {
-      height: calc(100% - 200px);
+      height: calc(100% - 150px);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -187,6 +185,11 @@ body {
 }
 
 .game-info-component {
+  .board-head {
+    font-size: 5rem;
+    font-weight: 700;
+    text-align: center;
+  }
   .room {
     margin: auto;
     font-size: 2rem;

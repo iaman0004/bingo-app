@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate   } from 'react-router-dom';
 import { useSnackbar } from 'react-simple-snackbar';
 
@@ -18,8 +18,6 @@ export function RoomJoinerComponent() {
   const navigate = useNavigate();
 
   const joinRoom = (evt: any) => {
-    // setPlayers(p => [...p, {room: 'novd39k', status: 'idle', type: 'self', user: 'tony_stark'}])
-    // return;
     evt.preventDefault();
 
     if (!user.length) {
@@ -78,53 +76,51 @@ export function RoomJoinerComponent() {
     setLoader(false);
     setPlayers(p => [...p, {
       room: data.data.room,
-      status: 'ready',
+      status: 'idle',
       type: 'self',
       user
     }]);
     setLeader(data.data.leader ||false);
-  }
+  };
 
   const opponentJoined = (data: IReceivedEvent) => {
     if (data.type !== 'success') {
       openSnackbar(toasts.SOMETHING_WENT_WRONG, DELAY);
       return;
     }
+    console.log({players});
     setPlayers(p => [...p, {
       room: data.data.room,
-      status: 'ready',
+      status: 'idle',
       type: 'opponent',
       user: data.data.user
     }]);
-  }
+  };
 
   const startGame = () => {
     if (leader) {
-      const startGame: IStartGame = {
+      const gameRoom: IStartGame = {
         room
       };
-      conn.emit(OUT_EVENT.START_GAME, startGame);
+      conn.emit(OUT_EVENT.START_GAME, gameRoom);
     }
     navigate('/bingo-game', {
       state: { room, players, leader }
-    });
-  }
+    })
+  };
 
   useEffect(() => {
-    if (conn) {
-      conn.on(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
-      conn.on(IN_EVENT.OPPONENT_JOINED, opponentJoined);
-      conn.on(IN_EVENT.START_GAME, startGame);
-    }
+    console.count('Called');
+    conn?.on(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
+    conn?.on(IN_EVENT.OPPONENT_JOINED, opponentJoined);
+    conn?.on(IN_EVENT.START_GAME, startGame);
     return () => {
-      if (conn) {
-        conn.off(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
-        conn.off(IN_EVENT.OPPONENT_JOINED, opponentJoined);
-        conn.off(IN_EVENT.START_GAME, startGame);
-      }
+      conn?.off(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
+      conn?.off(IN_EVENT.OPPONENT_JOINED, opponentJoined);
+      conn?.off(IN_EVENT.START_GAME, startGame);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conn])
+  }, [conn, players])
 
   return(
     <div className="room-joiner-component">
