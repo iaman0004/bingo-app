@@ -3,19 +3,23 @@ import { useNavigate   } from 'react-router-dom';
 import { useSnackbar } from 'react-simple-snackbar';
 
 import { BASE_API_URL, DELAY, IN_EVENT, OUT_EVENT, toasts } from "../constants";
-import { IReceivedEvent } from "../interfaces";
+import { IPlayerInfo, IReceivedEvent, IStartGame } from "../interfaces";
 import { SocketService } from "../services";
+import { AvatarComponent } from "./avatar-component";
 
 export function RoomJoinerComponent() {
   const [user, setUser] = useState<string>('');
   const [room, setRoom] = useState<string>('');
   const [loader, setLoader] = useState<boolean>(false);
+  const [leader, setLeader] = useState<boolean>(false);
   const [conn, setConnection] = useState<any>();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [openSnackbar, closeSnackbar] = useSnackbar();
+  const [players, setPlayers] = useState<Array<IPlayerInfo>>([]);
+  const [openSnackbar] = useSnackbar();
   const navigate = useNavigate();
 
   const joinRoom = (evt: any) => {
+    // setPlayers(p => [...p, {room: 'novd39k', status: 'idle', type: 'self', user: 'tony_stark'}])
+    // return;
     evt.preventDefault();
 
     if (!user.length) {
@@ -72,18 +76,51 @@ export function RoomJoinerComponent() {
     }
     setRoom(data.data.room);
     setLoader(false);
+    setPlayers(p => [...p, {
+      room: data.data.room,
+      status: 'ready',
+      type: 'self',
+      user
+    }]);
+    setLeader(data.data.leader ||false);
+  }
+
+  const opponentJoined = (data: IReceivedEvent) => {
+    if (data.type !== 'success') {
+      openSnackbar(toasts.SOMETHING_WENT_WRONG, DELAY);
+      return;
+    }
+    setPlayers(p => [...p, {
+      room: data.data.room,
+      status: 'ready',
+      type: 'opponent',
+      user: data.data.user
+    }]);
+  }
+
+  const startGame = () => {
+    if (leader) {
+      const startGame: IStartGame = {
+        room
+      };
+      conn.emit(OUT_EVENT.START_GAME, startGame);
+    }
     navigate('/bingo-game', {
-      state: { user, room: data.data.room }
+      state: { room, players, leader }
     });
   }
 
   useEffect(() => {
     if (conn) {
       conn.on(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
+      conn.on(IN_EVENT.OPPONENT_JOINED, opponentJoined);
+      conn.on(IN_EVENT.START_GAME, startGame);
     }
     return () => {
       if (conn) {
         conn.off(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
+        conn.off(IN_EVENT.OPPONENT_JOINED, opponentJoined);
+        conn.off(IN_EVENT.START_GAME, startGame);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,19 +135,49 @@ export function RoomJoinerComponent() {
           </div>
           <div className="saperator"></div>
           <div className="column">
-            <form className="joiner-form" onSubmit={e => joinRoom(e)}>
-              <div className="column">
-                <label className="label">Player Name</label>
-                <input className="input is-primary" type="text" placeholder="steve_Roger" value={user} onChange={e => handleUserInput(e, 'user')} autoComplete="off"/>
+            {!players?.length && 
+              <form className="joiner-form" onSubmit={e => joinRoom(e)}>
+                <div className="column">
+                  <label className="label">Player Name</label>
+                  <input className="input is-primary" type="text" placeholder="steve_Roger" value={user} onChange={e => handleUserInput(e, 'user')} autoComplete="off"/>
+                </div>
+                <div className="column">
+                  <label className="label">Room Name (Optional)</label>
+                  <input className="input is-primary" type="text" placeholder="F92N3PYN" value={room} onChange={e => handleUserInput(e, 'room')} autoComplete="off" />
+                </div>
+                <div className="column">
+                  <button type="submit" className={`button is-primary is-fullwidth ${loader ? 'is-loading' : ''}`}>Join</button>
+                </div>
+              </form>
+            }
+
+            {players?.length ? 
+              <div className="joiner-form start-step">
+                <div className="players-list">
+                  {players?.map((u, i) => 
+                    <div key={u.user+"_"+i} className="user-avatar">
+                      <div className="user-avatar-pic">
+                        <AvatarComponent name={u.user}></AvatarComponent>
+                      </div>
+                      <div className="user-name">{u.user} ({u.type})</div>
+                    </div>
+                  )}
+                </div>
+                <div className="actions">
+                  {
+                    players?.length === 2 
+                    ? (leader 
+                      ? <button type="button" className="button is-primary is-fullwidth" onClick={() => startGame()}>Start Game</button> 
+                      : <div className="caption">Ask your friend to start the game.</div>)
+                    : (<div className="invite-box">
+                        <div className="room-code">{room}</div>
+                        <div className="caption">Please ask your friend to join the above room.</div>
+                      </div>)
+                  }
+                </div>
               </div>
-              <div className="column">
-                <label className="label">Room Name (Optional)</label>
-                <input className="input is-primary" type="text" placeholder="F92N3PYN" value={room} onChange={e => handleUserInput(e, 'room')} autoComplete="off" />
-              </div>
-              <div className="column">
-                <button type="submit" className={`button is-primary is-fullwidth ${loader ? 'is-loading' : ''}`}>Join</button>
-              </div>
-            </form>
+            : null}
+
           </div>
         </div>
       </div>
