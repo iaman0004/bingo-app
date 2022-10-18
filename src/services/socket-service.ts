@@ -21,13 +21,12 @@ export class SocketService {
 
     return new Promise((resolve, reject) => {
       socket.on('connect', () => {
-        console.log(`Connected ${socket.id}`);
         this.socketInstance[path] = socket
         resolve(socket);
       })
 
       socket.on('connect_error', () => {
-        console.log(`Connection error`);
+        console.info(`Connection error`);
         reject({error: 'connect_error'});
       })
     });

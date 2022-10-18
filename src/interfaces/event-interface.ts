@@ -6,4 +6,5 @@ export interface IReceivedEvent {
 export interface IPlayed {
   room: string;
   played: number | string;
+  won?: boolean;
 }
