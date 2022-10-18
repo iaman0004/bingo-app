@@ -1,6 +1,8 @@
 @import './variables.scss';
 @import url('https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Signika:wght@400;700&display=swap');
 
+$medium: 768px;
+
 *,
 *::after,
 *::before {
@@ -48,7 +50,15 @@ body {
         cursor: default;
         background-color: $board-chip-background-color-active;
       }
+      &.shot {
+        cursor: default;
+        background-color: $board-chip-background-color-active-done;
+      }
     }
+  }
+  @media screen and (max-width: $medium) {
+    padding: 12px;
+    margin: auto;
   }
 }
 
@@ -69,6 +79,8 @@ body {
       display: flex;
       justify-content: center;
       align-items: center;
+      width: 100%;
+      flex-direction: column;
     }
     .board-turn {
       text-align: center;
@@ -82,6 +94,19 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  @media screen and (max-width: $medium) {
+    flex-direction: column-reverse;
+    overflow: scroll;
+    .player {
+      padding: 0;
+      height: auto;
+      width: 100%;
+    }
+    .board {
+      flex: auto;
+      padding: 0;
+    }
   }
 }
 
@@ -107,11 +132,20 @@ body {
       text-align: center;
       height: 100%;
     }
-
-    .saperator {
-      -webkit-box-shadow: 0 0 5px 2px $login-area-shadow;
-      -moz-box-shadow: 0 0 5px 2px $login-area-shadow;
-      box-shadow: 0 0 5px 2px $login-area-shadow;
+    @media screen and (max-width: $medium) {
+      height: auto;
+      box-shadow: none;
+      -webkit-box-shadow: none;
+      .title {
+        font-size: 4rem;
+      }
+    }
+    @media screen and (min-width: $medium) {
+      .saperator {
+        -webkit-box-shadow: 0 0 5px 2px $login-area-shadow;
+        -moz-box-shadow: 0 0 5px 2px $login-area-shadow;
+        box-shadow: 0 0 5px 2px $login-area-shadow;
+      }
     }
   
     .joiner-form {
@@ -205,6 +239,11 @@ body {
     align-items: center;
     .user-avatar-pic {
       margin: 8px 12px;
+    }
+  }
+  @media screen and (max-width: $medium) {
+    .board-head {
+      font-size: 3rem;
     }
   }
 }

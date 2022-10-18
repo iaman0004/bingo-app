@@ -1,7 +1,9 @@
 export const OUT_EVENT = {
   JOIN_ROOM: 'join_room',
   PLAYED: 'played',
-  START_GAME: 'start_game'
+  START_GAME: 'start_game',
+  GAME_WON: 'game_won',
+  ANOTHER_GAME: 'another_game'
 }
 
 export const IN_EVENT = {
@@ -10,5 +12,7 @@ export const IN_EVENT = {
   OPPONENT_PLAYED: 'opponent_played',
   OPPONENT_JOINED: 'opponent_joined',
   START_GAME: 'start_game',
-  NEXT_TURN: 'next_turn'
+  NEXT_TURN: 'next_turn',
+  OPPONENT_WON: 'opponent_won',
+  ANOTHER_GAME: 'another_game'
 }

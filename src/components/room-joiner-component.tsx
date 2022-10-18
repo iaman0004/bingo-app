@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate   } from 'react-router-dom';
 import { useSnackbar } from 'react-simple-snackbar';
 
@@ -88,7 +88,6 @@ export function RoomJoinerComponent() {
       openSnackbar(toasts.SOMETHING_WENT_WRONG, DELAY);
       return;
     }
-    console.log({players});
     setPlayers(p => [...p, {
       room: data.data.room,
       status: 'idle',

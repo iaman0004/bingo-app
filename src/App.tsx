@@ -12,7 +12,6 @@ export default function App() {
   const connectToSocket = async () => {
     try {
       const socket = await SocketService.instance.initializeSocket(BASE_API_URL, '/play/');
-      console.log(socket);
       setConnection(socket);
     }catch(err) {
       console.error(err);

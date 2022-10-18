@@ -7,9 +7,8 @@ export function GameInfoComponent(props: IGameInfoProps) {
     <Fragment>
       <div className="game-info-component">
         <div className="board-head">Bingo Tingo</div>
-        {/* <div className="column room">{props.room}</div> */}
         <div className="column">
-          {props.users?.map(u => (
+          {!props.isMobile && props.users?.map(u => (
             <div className="user-avatar" key={u.user}>
               <div className="user-avatar-pic">
                 <AvatarComponent name={u.user}></AvatarComponent>
@@ -25,6 +24,7 @@ export function GameInfoComponent(props: IGameInfoProps) {
 }
 
 interface IGameInfoProps{
+  isMobile?: boolean;
   currentTurn: boolean;
   room: string;
   users: Array<IPlayerInfo>;
