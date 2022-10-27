@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'react-simple-snackbar';
 
@@ -7,6 +7,7 @@ import { IPlayerInfo, IReceivedEvent, IStartGame } from "../interfaces";
 import { fetchPathQuery, SocketService } from "../services";
 import { AvatarComponent } from "./avatar-component";
 import { IconWrapper, IconArrowBackFilled24px, IconShareFilled24px, IconPlayFilled24px, IconArrowFilled24px } from '../icons';
+import { IconFavoriteFilled24px } from "../icons";
 
 export function RoomJoinerComponent() {
   const [user, setUser] = useState<string>('');
@@ -154,86 +155,95 @@ export function RoomJoinerComponent() {
   }, [conn, players, play])
 
   return(
-    <div className="room-joiner-component">
-      <div className="room-entry">
-        <div className="columns">
-          <div className="column">
-            <div className="title">Bingo Tingo</div>
-          </div>
-          <div className="saperator"></div>
-          <div className="column">
-            {!players?.length &&
-              <form className="joiner-form" onSubmit={e => joinRoom(e)}>
-                <div className="column">
-                  <label className="label">Player Name</label>
-                  <input className="input is-primary" type="text" placeholder="steve_Roger" value={user} onChange={e => handleUserInput(e, 'user')} autoComplete="off"/>
-                </div>
-                <div className="column">
-                  <label className="label">Room Name (Optional)</label>
-                  <input className="input is-primary" type="text" placeholder="F92N3PYN" value={room} onChange={e => handleUserInput(e, 'room')} autoComplete="off" />
-                </div>
-                <div className="column">
-                  <button type="submit" className={`button is-primary is-fullwidth ${loader ? 'is-loading' : ''}`}>
-                    <div className="invite-text">Join</div>
-                    <IconWrapper color="#FEFFFE">
-                      <IconArrowFilled24px />
-                    </IconWrapper>
-                  </button>
-                </div>
-              </form>
-            }
+    <Fragment>
+      <div className="room-joiner-component">
+        <div className="room-entry">
+          <div className="columns">
+            <div className="column">
+              <div className="title">Bingo Tingo</div>
+            </div>
+            <div className="saperator"></div>
+            <div className="column">
+              {!players?.length &&
+                <form className="joiner-form" onSubmit={e => joinRoom(e)}>
+                  <div className="column">
+                    <label className="label">Player Name</label>
+                    <input className="input is-primary" type="text" placeholder="steve_Roger" value={user} onChange={e => handleUserInput(e, 'user')} autoComplete="off"/>
+                  </div>
+                  <div className="column">
+                    <label className="label">Room Name (Optional)</label>
+                    <input className="input is-primary" type="text" placeholder="F92N3PYN" value={room} onChange={e => handleUserInput(e, 'room')} autoComplete="off" />
+                  </div>
+                  <div className="column">
+                    <button type="submit" className={`button is-primary is-fullwidth ${loader ? 'is-loading' : ''}`}>
+                      <div className="invite-text">Join</div>
+                      <IconWrapper color="#FEFFFE">
+                        <IconArrowFilled24px />
+                      </IconWrapper>
+                    </button>
+                  </div>
+                </form>
+              }
 
-            {players?.length ? 
-              <div className="joiner-form start-step">
-                <div className="players-list">
-                  {players?.map((u, i) => 
-                    <div key={u.user+"_"+i} className="user-avatar">
-                      <div className="user-avatar-pic">
-                        <AvatarComponent name={u.user}></AvatarComponent>
-                      </div>
-                      <div className="user-name">{u.user} ({u.type})</div>
-                    </div>
-                  )}
-                </div>
-                <div className="actions">
-                  {
-                    players?.length === 2 
-                    ? (leader 
-                      ? <button type="button" className="button is-primary is-fullwidth" onClick={() => startGame()}>
-                          <IconWrapper color="#FEFFFE">
-                            <IconPlayFilled24px />
-                          </IconWrapper>
-                          <span className="invite-text">Start Game</span>
-                        </button> 
-                      : <div className="caption">Ask your friend to start the game.</div>)
-                    : (<div className="invite-box">
-                        <div className="caption">Send invite to your friend to play together.</div>
-                        <div className="field has-addons">
-                          <p className="control">
-                            <button className="button" onClick={() => leaveRoom()}>
-                              <IconWrapper color="#373E40" height="24" width="24">
-                                <IconArrowBackFilled24px />
-                              </IconWrapper>
-                            </button>
-                          </p>
-                          <p className="control w-100p">
-                            <button className="button is-primary w-100p" onClick={() => sendInvite(room)}>
-                              <span className="invite-text">Invite</span>
-                              <IconWrapper color="#FEFFFE">
-                                <IconShareFilled24px />
-                              </IconWrapper>
-                            </button>
-                          </p>
+              {players?.length ? 
+                <div className="joiner-form start-step">
+                  <div className="players-list">
+                    {players?.map((u, i) => 
+                      <div key={u.user+"_"+i} className="user-avatar">
+                        <div className="user-avatar-pic">
+                          <AvatarComponent name={u.user}></AvatarComponent>
                         </div>
-                      </div>)
-                  }
+                        <div className="user-name">{u.user} ({u.type})</div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="actions">
+                    {
+                      players?.length === 2 
+                      ? (leader 
+                        ? <button type="button" className="button is-primary is-fullwidth" onClick={() => startGame()}>
+                            <IconWrapper color="#FEFFFE">
+                              <IconPlayFilled24px />
+                            </IconWrapper>
+                            <span className="invite-text">Start Game</span>
+                          </button> 
+                        : <div className="caption">Ask your friend to start the game.</div>)
+                      : (<div className="invite-box">
+                          <div className="caption">Send invite to your friend to play together.</div>
+                          <div className="field has-addons">
+                            <p className="control">
+                              <button className="button" onClick={() => leaveRoom()}>
+                                <IconWrapper color="#373E40" height="24" width="24">
+                                  <IconArrowBackFilled24px />
+                                </IconWrapper>
+                              </button>
+                            </p>
+                            <p className="control w-100p">
+                              <button className="button is-primary w-100p" onClick={() => sendInvite(room)}>
+                                <span className="invite-text">Invite</span>
+                                <IconWrapper color="#FEFFFE">
+                                  <IconShareFilled24px />
+                                </IconWrapper>
+                              </button>
+                            </p>
+                          </div>
+                        </div>)
+                    }
+                  </div>
                 </div>
-              </div>
-            : null}
+              : null}
 
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      <div className="author-message">
+        Made with 
+        <IconWrapper color="#A5031D">
+          <IconFavoriteFilled24px />
+        </IconWrapper>
+         by Sharmaji
+      </div>
+    </Fragment>
   );
 }

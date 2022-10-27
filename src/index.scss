@@ -256,6 +256,16 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.author-message {
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  padding: 8px 0;
+  display: flex;
+  justify-content: center;
+
+}
 /*
 Bulma Class Override
 */
