@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate   } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'react-simple-snackbar';
 
 import { BASE_API_URL, DELAY, IN_EVENT, OUT_EVENT, toasts } from "../constants";
 import { IPlayerInfo, IReceivedEvent, IStartGame } from "../interfaces";
-import { SocketService } from "../services";
+import { fetchPathQuery, SocketService } from "../services";
 import { AvatarComponent } from "./avatar-component";
+import { IconWrapper, IconArrowBackFilled24px, IconShareFilled24px, IconPlayFilled24px, IconArrowFilled24px } from '../icons';
 
 export function RoomJoinerComponent() {
   const [user, setUser] = useState<string>('');
@@ -16,6 +17,7 @@ export function RoomJoinerComponent() {
   const [players, setPlayers] = useState<Array<IPlayerInfo>>([]);
   const [openSnackbar] = useSnackbar();
   const navigate = useNavigate();
+  const play = useParams();
 
   const joinRoom = (evt: any) => {
     evt.preventDefault();
@@ -108,18 +110,48 @@ export function RoomJoinerComponent() {
     })
   };
 
+  const sendInvite = (roomId: string) => {
+    const url = `${window.location.href}?play=${roomId}`;
+    
+    const sharableData: ShareData = {
+      title: 'Bingo Tingo',
+      text: 'Play lengendary Bingo with your friends.',
+      url
+    }
+    if (navigator && navigator.canShare(sharableData)) {
+      navigator.share(sharableData);
+    } else {
+      openSnackbar('Invite failed. Please ask your friend to join the room.');
+    }
+  }
+
+  const leaveRoom = () => {
+    setConnection(undefined);
+    SocketService.instance.destoryConnection('/play/');
+    setPlayers([]);
+    setRoom('');
+  };
+
   useEffect(() => {
-    console.count('Called');
+    const query = fetchPathQuery(window.location.href);
+    console.log(query);
+    if (query && query['play']) {
+      setRoom(query['play']);
+    }
+  },[]);
+
+  useEffect(() => {
     conn?.on(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
     conn?.on(IN_EVENT.OPPONENT_JOINED, opponentJoined);
     conn?.on(IN_EVENT.START_GAME, startGame);
     return () => {
+      console.log('Destroyer called');
       conn?.off(IN_EVENT.RECEIVE_ROOM_ID, joinedRoomEvent);
       conn?.off(IN_EVENT.OPPONENT_JOINED, opponentJoined);
       conn?.off(IN_EVENT.START_GAME, startGame);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conn, players])
+  }, [conn, players, play])
 
   return(
     <div className="room-joiner-component">
@@ -130,7 +162,7 @@ export function RoomJoinerComponent() {
           </div>
           <div className="saperator"></div>
           <div className="column">
-            {!players?.length && 
+            {!players?.length &&
               <form className="joiner-form" onSubmit={e => joinRoom(e)}>
                 <div className="column">
                   <label className="label">Player Name</label>
@@ -141,7 +173,12 @@ export function RoomJoinerComponent() {
                   <input className="input is-primary" type="text" placeholder="F92N3PYN" value={room} onChange={e => handleUserInput(e, 'room')} autoComplete="off" />
                 </div>
                 <div className="column">
-                  <button type="submit" className={`button is-primary is-fullwidth ${loader ? 'is-loading' : ''}`}>Join</button>
+                  <button type="submit" className={`button is-primary is-fullwidth ${loader ? 'is-loading' : ''}`}>
+                    <div className="invite-text">Join</div>
+                    <IconWrapper color="#FEFFFE">
+                      <IconArrowFilled24px />
+                    </IconWrapper>
+                  </button>
                 </div>
               </form>
             }
@@ -162,11 +199,32 @@ export function RoomJoinerComponent() {
                   {
                     players?.length === 2 
                     ? (leader 
-                      ? <button type="button" className="button is-primary is-fullwidth" onClick={() => startGame()}>Start Game</button> 
+                      ? <button type="button" className="button is-primary is-fullwidth" onClick={() => startGame()}>
+                          <IconWrapper color="#FEFFFE">
+                            <IconPlayFilled24px />
+                          </IconWrapper>
+                          <span className="invite-text">Start Game</span>
+                        </button> 
                       : <div className="caption">Ask your friend to start the game.</div>)
                     : (<div className="invite-box">
-                        <div className="room-code">{room}</div>
-                        <div className="caption">Please ask your friend to join the above room.</div>
+                        <div className="caption">Send invite to your friend to play together.</div>
+                        <div className="field has-addons">
+                          <p className="control">
+                            <button className="button" onClick={() => leaveRoom()}>
+                              <IconWrapper color="#373E40" height="24" width="24">
+                                <IconArrowBackFilled24px />
+                              </IconWrapper>
+                            </button>
+                          </p>
+                          <p className="control w-100p">
+                            <button className="button is-primary w-100p" onClick={() => sendInvite(room)}>
+                              <span className="invite-text">Invite</span>
+                              <IconWrapper color="#FEFFFE">
+                                <IconShareFilled24px />
+                              </IconWrapper>
+                            </button>
+                          </p>
+                        </div>
                       </div>)
                   }
                 </div>

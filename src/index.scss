@@ -187,9 +187,12 @@ body {
           .caption {
             font-size: .8rem;
             text-align: center;
-            margin-top: 4px;
+            margin: 4px 0;
           }
         }
+      }
+      .invite-text {
+        padding: 0 8px;
       }
     }
   
@@ -248,6 +251,15 @@ body {
   }
 }
 
+.icon-wrapper-component {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 /*
 Bulma Class Override
 */
+
+.w-100p {
+  width: 100%;
+}

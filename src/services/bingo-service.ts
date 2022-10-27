@@ -1,5 +1,3 @@
-const BINGO = ['B', 'I', 'N', 'G', 'O'];
-
 export const shuffleBingoBoard = () => {
   const el = generateRandomArray();
 

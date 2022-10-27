@@ -32,12 +32,10 @@ export class SocketService {
     });
   }
 
-  public broadcastMessage(socket: any, event: string, message: string): void {
-    socket?.emit(event, message);
-  }
-
-  public initializeEvent(socket: any, event: string, message: string) {
-
-  }
-
+  public destoryConnection(path: string) {
+    if (this.socketInstance[path]) {
+      this.socketInstance[path].close();
+      delete this.socketInstance[path];
+    }
+  };
 }

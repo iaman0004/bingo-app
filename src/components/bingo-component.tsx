@@ -59,8 +59,23 @@ export function BingoComponent() {
     
     return () => {
       conn?.off(IN_EVENT.NEXT_TURN, assignNextTurn);
+      SocketService.instance.destoryConnection('/play/');
     }
   }, [assignNextTurn, conn, isYourTurn, player])
+
+  // TODO: Find confirm solution if user try to leave the game
+  // useEffect(()=> {
+  //   window.onpopstate = (evt: PopStateEvent) => {
+  //     const currentUrl = window.location.href;
+  //     console.log(evt);
+  //     const exitGame = window.confirm('Do you want to exit game ?');
+  //     if (!exitGame) {
+  //       console.log(currentUrl.split(window.location.origin)[0]);
+  //       navigate(currentUrl.split(window.location.origin)[0]);
+  //       return false;
+  //     }
+  //   }
+  // })
 
   return(
     <div className="bingo-component">
